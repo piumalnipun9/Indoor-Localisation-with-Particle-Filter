@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "scripts"))
 
-from analyze_maps import CELL, HALL, NOISE_DB, SENSITIVITY_DBM, beacon_zones, rssi_maps, zone_grid  # noqa: E402
+from analyze_maps import CELL, HALL, NOISE_DB, SENSITIVITY_DBM, beacon_zones, rssi_maps  # noqa: E402
 from indoor_loc import floorplan as fp  # noqa: E402
 from indoor_loc import layouts as ly  # noqa: E402
 
@@ -43,7 +43,7 @@ def mean_bound(a, b, c):
 
 def main():
     free = fp.occupancy_grid(CELL)
-    zones = zone_grid(free.shape)
+    zones = fp.zone_grid(CELL)
     mask = np.zeros_like(free)
     mask[::STRIDE, ::STRIDE] = True
     mask &= free

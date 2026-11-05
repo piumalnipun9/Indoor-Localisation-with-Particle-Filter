@@ -10,6 +10,7 @@ from scipy.ndimage import distance_transform_edt, gaussian_filter, map_coordinat
 
 MAP_CELL = 0.5
 FIELD_CELL = 2.0
+BUILDING_SEED = 2026
 
 
 @dataclass(frozen=True)
@@ -24,8 +25,11 @@ class RadioConfig:
     measurement_sd_db: float = 1.5
     device_offset_sd_db: float = 2.0
     body_loss_max_db: float = 10.0
-    person_loss_db: float = 3.0
+    person_loss_db: float = 5.0
     crowd_loss_cap_db: float = 15.0
+    deep_fade_probability: float = 0.03
+    deep_fade_min_db: float = 10.0
+    deep_fade_max_db: float = 20.0
 
 
 BLE = RadioConfig(tx_power_dbm=-12.0, sensitivity_dbm=-95.0, period_s=1.0, receive_probability=0.85)
@@ -62,8 +66,10 @@ def load_path_gain_db(path):
 class RadioField:
     """Mean RSSI and fixed shadowing for every transmitter in one map file."""
 
-    def __init__(self, path, config, rng):
+    def __init__(self, path, config, building_seed=BUILDING_SEED):
+        """The shadowing belongs to the building, so every run shares building_seed."""
         data = np.load(path)
+        rng = np.random.default_rng(building_seed)
         self.config = config
         self.ids = data["ids"]
         self.positions = data["positions"]
@@ -133,6 +139,8 @@ def simulate_radio(field, truth, heading, crowd, dt, rng):
         people = crowd[i] if crowd is not None else np.empty((0, 2))
         blockers = crowd_blockers(truth[i], field.positions, people)
         loss = loss + np.minimum(blockers * config.person_loss_db, config.crowd_loss_cap_db)
+        deep = rng.random(len(tx_xy)) < config.deep_fade_probability
+        loss = loss + deep * rng.uniform(config.deep_fade_min_db, config.deep_fade_max_db, len(tx_xy))
         value = (
             mean[:, n]
             - loss

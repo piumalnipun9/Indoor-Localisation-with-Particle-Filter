@@ -24,6 +24,7 @@ PILLAR_SPACING = 15.0
 PILLAR_ROWS_Y = (26.0, 34.0)
 GATE_COUNT = 8
 GATE_DIVIDER_START_Y = 46.0  # Dividers stop short of the concourse.
+HALL = -1  # Zone id for the concourse and gates.
 
 # (name, width in metres, material of the wall facing the concourse)
 ROOM_ROW = [
@@ -123,6 +124,23 @@ def build_pillars():
 
 def ceiling_height(x, y):
     return ROOM_CEILING if y < ROOMS_Y[1] else HALL_CEILING
+
+
+def zone_of(x, y):
+    """Room index, or HALL for the concourse and gates."""
+    for i, room in enumerate(build_rooms()):
+        if room.x0 <= x <= room.x1 and y <= room.y1:
+            return i
+    return HALL
+
+
+def zone_grid(resolution=0.5):
+    """Zone per cell, indexed [iy, ix]."""
+    ny, nx = int(DEPTH / resolution), int(WIDTH / resolution)
+    zones = np.full((ny, nx), HALL, dtype=np.int32)
+    for i, room in enumerate(build_rooms()):
+        zones[: int(room.y1 / resolution), int(room.x0 / resolution) : int(room.x1 / resolution)] = i
+    return zones
 
 
 def distance_to_nearest_wall(x, y):

@@ -12,7 +12,7 @@ sys.path.insert(0, str(ROOT))
 from indoor_loc import paths as pa  # noqa: E402
 from indoor_loc import sensors as se  # noqa: E402
 
-CROWDS = {"none": 0, "low": 100, "medium": 300, "high": 800}
+CROWDS = {"none": 0, "low": 300, "medium": 800, "high": 2000}
 LAYOUT = "E_B_plus_extras"
 WIFI_BANDS = ("wifi_2g4", "wifi_5g")
 
@@ -38,12 +38,12 @@ def main():
         people = [pa.walk(router, rng, args.duration, config) for _ in range(CROWDS[args.crowd])]
         crowd = np.stack(people, axis=1).astype(np.float32)
 
-    ble_field = se.RadioField(maps / f"{LAYOUT}__ble.npz", se.BLE, rng)
+    ble_field = se.RadioField(maps / f"{LAYOUT}__ble.npz", se.BLE)
     ble_time, ble = se.simulate_radio(ble_field, truth, heading, crowd, dt, rng)
 
     wifi = []
     for band in WIFI_BANDS:
-        field = se.RadioField(maps / f"wifi__{band}.npz", se.WIFI, rng)
+        field = se.RadioField(maps / f"wifi__{band}.npz", se.WIFI)
         wifi_time, rssi = se.simulate_radio(field, truth, heading, crowd, dt, rng)
         wifi.append(rssi)
 
@@ -61,6 +61,7 @@ def main():
         ble_time=ble_time,
         ble_rssi=ble,
         ble_positions=ble_field.positions,
+        crowd_name=args.crowd,
         wifi_time=wifi_time,
         wifi_2g4_rssi=wifi[0],
         wifi_5g_rssi=wifi[1],

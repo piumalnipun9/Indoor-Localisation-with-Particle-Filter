@@ -26,7 +26,7 @@ NOISE_DB = 5.0
 SMOOTH_METRES = 2.0
 CELL = 0.5
 NOISE_TRIALS = 10
-HALL = -1
+HALL = fp.HALL
 
 
 def rssi_maps(name, tx_power):
@@ -34,25 +34,8 @@ def rssi_maps(name, tx_power):
     return gaussian_filter(rssi, sigma=(0, SMOOTH_METRES / CELL, SMOOTH_METRES / CELL)).astype(np.float32)
 
 
-def zone_grid(shape):
-    """Room index per cell, or HALL for the concourse and gates."""
-    zones = np.full(shape, HALL, dtype=np.int32)
-    for i, room in enumerate(fp.build_rooms()):
-        y = int(room.y1 / CELL)
-        zones[: y, int(room.x0 / CELL) : int(room.x1 / CELL)] = i
-    return zones
-
-
 def beacon_zones(beacons):
-    rooms = fp.build_rooms()
-    result = []
-    for b in beacons:
-        zone = HALL
-        for i, room in enumerate(rooms):
-            if room.x0 <= b.x <= room.x1 and b.y <= room.y1:
-                zone = i
-        result.append(zone)
-    return np.array(result)
+    return np.array([fp.zone_of(b.x, b.y) for b in beacons])
 
 
 def position_bound(rssi):
@@ -89,7 +72,7 @@ def zone_rates(rssi, beacons, zones, free, rng):
 
 def main():
     free = fp.occupancy_grid(CELL)
-    zones = zone_grid(free.shape)
+    zones = fp.zone_grid(CELL)
     hall = free & (zones == HALL)
     rooms = free & (zones >= 0)
     rng = np.random.default_rng(7)
