@@ -1,0 +1,68 @@
+<scene version="2.1.0">
+
+    <bsdf type="itu-radio-material" id="wall_concrete-mat">
+        <string name="type" value="concrete"/>
+        <float name="thickness" value="0.2"/>
+    </bsdf>
+    <bsdf type="itu-radio-material" id="wall_drywall-mat">
+        <string name="type" value="plasterboard"/>
+        <float name="thickness" value="0.1"/>
+    </bsdf>
+    <bsdf type="itu-radio-material" id="wall_glass-mat">
+        <string name="type" value="glass"/>
+        <float name="thickness" value="0.02"/>
+    </bsdf>
+    <bsdf type="itu-radio-material" id="floor-mat">
+        <string name="type" value="concrete"/>
+        <float name="thickness" value="0.3"/>
+    </bsdf>
+    <bsdf type="itu-radio-material" id="room_ceiling-mat">
+        <string name="type" value="ceiling_board"/>
+        <float name="thickness" value="0.02"/>
+    </bsdf>
+    <bsdf type="itu-radio-material" id="hall_roof-mat">
+        <string name="type" value="concrete"/>
+        <float name="thickness" value="0.2"/>
+    </bsdf>
+    <bsdf type="itu-radio-material" id="pillars-mat">
+        <string name="type" value="concrete"/>
+        <float name="thickness" value="0.3"/>
+    </bsdf>
+
+    <shape type="ply" id="mesh-wall_concrete">
+        <string name="filename" value="meshes/wall_concrete.ply"/>
+        <boolean name="face_normals" value="true"/>
+        <ref id="wall_concrete-mat" name="bsdf"/>
+    </shape>
+    <shape type="ply" id="mesh-wall_drywall">
+        <string name="filename" value="meshes/wall_drywall.ply"/>
+        <boolean name="face_normals" value="true"/>
+        <ref id="wall_drywall-mat" name="bsdf"/>
+    </shape>
+    <shape type="ply" id="mesh-wall_glass">
+        <string name="filename" value="meshes/wall_glass.ply"/>
+        <boolean name="face_normals" value="true"/>
+        <ref id="wall_glass-mat" name="bsdf"/>
+    </shape>
+    <shape type="ply" id="mesh-floor">
+        <string name="filename" value="meshes/floor.ply"/>
+        <boolean name="face_normals" value="true"/>
+        <ref id="floor-mat" name="bsdf"/>
+    </shape>
+    <shape type="ply" id="mesh-room_ceiling">
+        <string name="filename" value="meshes/room_ceiling.ply"/>
+        <boolean name="face_normals" value="true"/>
+        <ref id="room_ceiling-mat" name="bsdf"/>
+    </shape>
+    <shape type="ply" id="mesh-hall_roof">
+        <string name="filename" value="meshes/hall_roof.ply"/>
+        <boolean name="face_normals" value="true"/>
+        <ref id="hall_roof-mat" name="bsdf"/>
+    </shape>
+    <shape type="ply" id="mesh-pillars">
+        <string name="filename" value="meshes/pillars.ply"/>
+        <boolean name="face_normals" value="true"/>
+        <ref id="pillars-mat" name="bsdf"/>
+    </shape>
+
+</scene>

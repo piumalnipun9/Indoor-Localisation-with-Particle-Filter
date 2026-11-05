@@ -1,0 +1,100 @@
+"""Beacon and access-point layouts. Each layout is a list of Transmitter records."""
+import math
+from dataclasses import asdict, dataclass
+
+from . import floorplan as fp
+
+LOW_MOUNT_Z = 3.0
+CEILING_GAP = 0.05
+MIN_WALL_CLEARANCE = 0.25
+DOOR_FLANK = 3.0
+WALL_STANDOFF = 0.3
+
+
+@dataclass(frozen=True)
+class Transmitter:
+    id: str
+    kind: str  # "ble" or "wifi"
+    x: float
+    y: float
+    z: float
+    mount: str  # "ceiling", "pillar", "wall", "pole"
+
+
+def _clear_of_walls(x, y):
+    """Shift a point sideways so it does not land on a wall."""
+    while fp.distance_to_nearest_wall(x, y) < MIN_WALL_CLEARANCE:
+        x += 0.5
+    return x, y
+
+
+def _ceiling_ble(i, x, y):
+    x, y = _clear_of_walls(x, y)
+    return Transmitter(f"ble_{i:03d}", "ble", x, y, fp.ceiling_height(x, y) - CEILING_GAP, "ceiling")
+
+
+def _grid(spacing):
+    columns = math.ceil(fp.WIDTH / spacing)
+    rows = math.ceil(fp.DEPTH / spacing)
+    x_margin = (fp.WIDTH - (columns - 1) * spacing) / 2
+    y_margin = (fp.DEPTH - (rows - 1) * spacing) / 2
+    return [
+        (x_margin + c * spacing, y_margin + r * spacing)
+        for r in range(rows)
+        for c in range(columns)
+    ]
+
+
+def even_ceiling(spacing):
+    return [_ceiling_ble(i, x, y) for i, (x, y) in enumerate(_grid(spacing))]
+
+
+def even_low(spacing):
+    points = [_clear_of_walls(x, y) for x, y in _grid(spacing)]
+    return [
+        Transmitter(f"ble_{i:03d}", "ble", x, y, min(LOW_MOUNT_Z, fp.ceiling_height(x, y) - CEILING_GAP), "pole")
+        for i, (x, y) in enumerate(points)
+    ]
+
+
+def uneven():
+    """Dense at rooms and doors, sparse in the open hall."""
+    points = [(x, y, LOW_MOUNT_Z, "pillar") for x, y in fp.build_pillars()]
+
+    for gate in fp.build_gates():
+        width = gate.x1 - gate.x0
+        for fraction in (0.25, 0.75):
+            points.append((gate.x0 + fraction * width, 50.0, LOW_MOUNT_Z, "pole"))
+
+    for room in fp.build_rooms():
+        x, y = room.center
+        points.append((x, y, fp.ROOM_CEILING - CEILING_GAP, "ceiling"))
+        for offset in (-DOOR_FLANK, DOOR_FLANK):
+            points.append((room.door_x + offset, room.y1 + WALL_STANDOFF, LOW_MOUNT_Z, "wall"))
+
+    return [Transmitter(f"ble_{i:03d}", "ble", x, y, z, mount) for i, (x, y, z, mount) in enumerate(points)]
+
+
+def wifi_access_points():
+    """Three staggered rows with about 25 m between neighbouring access points."""
+    spacing = fp.WIDTH / 8
+    points = [(spacing * (k + 0.5), y) for y in (10.0, 50.0) for k in range(8)]
+    points += [(spacing * (k + 1), 30.0) for k in range(7)]
+    result = []
+    for i, (x, y) in enumerate(points):
+        x, y = _clear_of_walls(x, y)
+        result.append(Transmitter(f"wifi_{i:02d}", "wifi", x, y, fp.ceiling_height(x, y) - CEILING_GAP, "ceiling"))
+    return result
+
+
+def all_layouts():
+    return {
+        "A_even_ceiling_10m": even_ceiling(10.0),
+        "B_even_ceiling_15m": even_ceiling(15.0),
+        "C_even_low_15m": even_low(15.0),
+        "D_uneven": uneven(),
+    }
+
+
+def to_records(transmitters):
+    return [asdict(t) for t in transmitters]
