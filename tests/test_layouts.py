@@ -23,6 +23,14 @@ def test_transmitters_are_inside_and_clear_of_walls():
             assert fp.distance_to_nearest_wall(t.x, t.y) >= 0.25, t
 
 
+def test_transmitters_are_outside_pillars():
+    half = fp.PILLAR_SIZE / 2
+    for group in list(ly.all_layouts().values()) + [ly.wifi_access_points()]:
+        for t in group:
+            for x, y in fp.build_pillars():
+                assert abs(t.x - x) > half or abs(t.y - y) > half, t
+
+
 def test_every_walkable_cell_is_reachable():
     free = fp.occupancy_grid()
     ny, nx = free.shape

@@ -1,11 +1,12 @@
 """Measure what one wall costs in Sionna, as a flat sheet and as a two-faced box."""
+import os
 import tempfile
 import sys
 from pathlib import Path
 
 import mitsuba as mi
 
-mi.set_variant("llvm_ad_mono_polarized")
+mi.set_variant(os.environ.get("SIONNA_VARIANT", "cuda_ad_mono_polarized"))
 import numpy as np
 from sionna.rt import PathSolver, PlanarArray, Receiver, Transmitter, load_scene
 

@@ -1,4 +1,5 @@
 """Checks that the exported scene is complete and that Sionna RT can load it."""
+import os
 import sys
 from pathlib import Path
 
@@ -33,7 +34,7 @@ def test_sionna_loads_the_scene(tmp_path):
     pytest.importorskip("sionna.rt")
     import mitsuba as mi
 
-    mi.set_variant("llvm_ad_mono_polarized")
+    mi.set_variant(os.environ.get("SIONNA_VARIANT", "llvm_ad_mono_polarized"))
     from sionna.rt import load_scene
 
     scene = load_scene(str(se.write_scene(tmp_path)), merge_shapes=False)

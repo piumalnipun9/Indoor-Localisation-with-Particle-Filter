@@ -8,3 +8,6 @@ __pycache__/
 
 # Generated images
 outputs/
+
+# Generated radio maps
+data/radio_maps/

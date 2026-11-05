@@ -2489,7 +2489,7 @@
         "id": "ble_000",
         "kind": "ble",
         "x": 7.5,
-        "y": 26.0,
+        "y": 26.4,
         "z": 3.0,
         "mount": "pillar"
       },
@@ -2497,7 +2497,7 @@
         "id": "ble_001",
         "kind": "ble",
         "x": 22.5,
-        "y": 26.0,
+        "y": 26.4,
         "z": 3.0,
         "mount": "pillar"
       },
@@ -2505,7 +2505,7 @@
         "id": "ble_002",
         "kind": "ble",
         "x": 37.5,
-        "y": 26.0,
+        "y": 26.4,
         "z": 3.0,
         "mount": "pillar"
       },
@@ -2513,7 +2513,7 @@
         "id": "ble_003",
         "kind": "ble",
         "x": 52.5,
-        "y": 26.0,
+        "y": 26.4,
         "z": 3.0,
         "mount": "pillar"
       },
@@ -2521,7 +2521,7 @@
         "id": "ble_004",
         "kind": "ble",
         "x": 67.5,
-        "y": 26.0,
+        "y": 26.4,
         "z": 3.0,
         "mount": "pillar"
       },
@@ -2529,7 +2529,7 @@
         "id": "ble_005",
         "kind": "ble",
         "x": 82.5,
-        "y": 26.0,
+        "y": 26.4,
         "z": 3.0,
         "mount": "pillar"
       },
@@ -2537,7 +2537,7 @@
         "id": "ble_006",
         "kind": "ble",
         "x": 97.5,
-        "y": 26.0,
+        "y": 26.4,
         "z": 3.0,
         "mount": "pillar"
       },
@@ -2545,7 +2545,7 @@
         "id": "ble_007",
         "kind": "ble",
         "x": 112.5,
-        "y": 26.0,
+        "y": 26.4,
         "z": 3.0,
         "mount": "pillar"
       },
@@ -2553,7 +2553,7 @@
         "id": "ble_008",
         "kind": "ble",
         "x": 127.5,
-        "y": 26.0,
+        "y": 26.4,
         "z": 3.0,
         "mount": "pillar"
       },
@@ -2561,7 +2561,7 @@
         "id": "ble_009",
         "kind": "ble",
         "x": 142.5,
-        "y": 26.0,
+        "y": 26.4,
         "z": 3.0,
         "mount": "pillar"
       },
@@ -2569,7 +2569,7 @@
         "id": "ble_010",
         "kind": "ble",
         "x": 157.5,
-        "y": 26.0,
+        "y": 26.4,
         "z": 3.0,
         "mount": "pillar"
       },
@@ -2577,7 +2577,7 @@
         "id": "ble_011",
         "kind": "ble",
         "x": 172.5,
-        "y": 26.0,
+        "y": 26.4,
         "z": 3.0,
         "mount": "pillar"
       },
@@ -2585,7 +2585,7 @@
         "id": "ble_012",
         "kind": "ble",
         "x": 187.5,
-        "y": 26.0,
+        "y": 26.4,
         "z": 3.0,
         "mount": "pillar"
       },
@@ -2593,7 +2593,7 @@
         "id": "ble_013",
         "kind": "ble",
         "x": 202.5,
-        "y": 26.0,
+        "y": 26.4,
         "z": 3.0,
         "mount": "pillar"
       },
@@ -2601,7 +2601,7 @@
         "id": "ble_014",
         "kind": "ble",
         "x": 217.5,
-        "y": 26.0,
+        "y": 26.4,
         "z": 3.0,
         "mount": "pillar"
       },
@@ -2609,7 +2609,7 @@
         "id": "ble_015",
         "kind": "ble",
         "x": 232.5,
-        "y": 26.0,
+        "y": 26.4,
         "z": 3.0,
         "mount": "pillar"
       },
@@ -2617,7 +2617,7 @@
         "id": "ble_016",
         "kind": "ble",
         "x": 247.5,
-        "y": 26.0,
+        "y": 26.4,
         "z": 3.0,
         "mount": "pillar"
       },
@@ -2625,7 +2625,7 @@
         "id": "ble_017",
         "kind": "ble",
         "x": 15.0,
-        "y": 34.0,
+        "y": 33.6,
         "z": 3.0,
         "mount": "pillar"
       },
@@ -2633,7 +2633,7 @@
         "id": "ble_018",
         "kind": "ble",
         "x": 30.0,
-        "y": 34.0,
+        "y": 33.6,
         "z": 3.0,
         "mount": "pillar"
       },
@@ -2641,7 +2641,7 @@
         "id": "ble_019",
         "kind": "ble",
         "x": 45.0,
-        "y": 34.0,
+        "y": 33.6,
         "z": 3.0,
         "mount": "pillar"
       },
@@ -2649,7 +2649,7 @@
         "id": "ble_020",
         "kind": "ble",
         "x": 60.0,
-        "y": 34.0,
+        "y": 33.6,
         "z": 3.0,
         "mount": "pillar"
       },
@@ -2657,7 +2657,7 @@
         "id": "ble_021",
         "kind": "ble",
         "x": 75.0,
-        "y": 34.0,
+        "y": 33.6,
         "z": 3.0,
         "mount": "pillar"
       },
@@ -2665,7 +2665,7 @@
         "id": "ble_022",
         "kind": "ble",
         "x": 90.0,
-        "y": 34.0,
+        "y": 33.6,
         "z": 3.0,
         "mount": "pillar"
       },
@@ -2673,7 +2673,7 @@
         "id": "ble_023",
         "kind": "ble",
         "x": 105.0,
-        "y": 34.0,
+        "y": 33.6,
         "z": 3.0,
         "mount": "pillar"
       },
@@ -2681,7 +2681,7 @@
         "id": "ble_024",
         "kind": "ble",
         "x": 120.0,
-        "y": 34.0,
+        "y": 33.6,
         "z": 3.0,
         "mount": "pillar"
       },
@@ -2689,7 +2689,7 @@
         "id": "ble_025",
         "kind": "ble",
         "x": 135.0,
-        "y": 34.0,
+        "y": 33.6,
         "z": 3.0,
         "mount": "pillar"
       },
@@ -2697,7 +2697,7 @@
         "id": "ble_026",
         "kind": "ble",
         "x": 150.0,
-        "y": 34.0,
+        "y": 33.6,
         "z": 3.0,
         "mount": "pillar"
       },
@@ -2705,7 +2705,7 @@
         "id": "ble_027",
         "kind": "ble",
         "x": 165.0,
-        "y": 34.0,
+        "y": 33.6,
         "z": 3.0,
         "mount": "pillar"
       },
@@ -2713,7 +2713,7 @@
         "id": "ble_028",
         "kind": "ble",
         "x": 180.0,
-        "y": 34.0,
+        "y": 33.6,
         "z": 3.0,
         "mount": "pillar"
       },
@@ -2721,7 +2721,7 @@
         "id": "ble_029",
         "kind": "ble",
         "x": 195.0,
-        "y": 34.0,
+        "y": 33.6,
         "z": 3.0,
         "mount": "pillar"
       },
@@ -2729,7 +2729,7 @@
         "id": "ble_030",
         "kind": "ble",
         "x": 210.0,
-        "y": 34.0,
+        "y": 33.6,
         "z": 3.0,
         "mount": "pillar"
       },
@@ -2737,7 +2737,7 @@
         "id": "ble_031",
         "kind": "ble",
         "x": 225.0,
-        "y": 34.0,
+        "y": 33.6,
         "z": 3.0,
         "mount": "pillar"
       },
@@ -2745,7 +2745,7 @@
         "id": "ble_032",
         "kind": "ble",
         "x": 240.0,
-        "y": 34.0,
+        "y": 33.6,
         "z": 3.0,
         "mount": "pillar"
       },
@@ -3140,6 +3140,808 @@
         "y": 20.3,
         "z": 3.0,
         "mount": "wall"
+      }
+    ],
+    "E_B_plus_extras": [
+      {
+        "id": "ble_000",
+        "kind": "ble",
+        "x": 5.0,
+        "y": 7.5,
+        "z": 2.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_001",
+        "kind": "ble",
+        "x": 20.5,
+        "y": 7.5,
+        "z": 2.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_002",
+        "kind": "ble",
+        "x": 35.0,
+        "y": 7.5,
+        "z": 2.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_003",
+        "kind": "ble",
+        "x": 50.0,
+        "y": 7.5,
+        "z": 2.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_004",
+        "kind": "ble",
+        "x": 65.0,
+        "y": 7.5,
+        "z": 2.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_005",
+        "kind": "ble",
+        "x": 80.0,
+        "y": 7.5,
+        "z": 2.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_006",
+        "kind": "ble",
+        "x": 95.0,
+        "y": 7.5,
+        "z": 2.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_007",
+        "kind": "ble",
+        "x": 110.0,
+        "y": 7.5,
+        "z": 2.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_008",
+        "kind": "ble",
+        "x": 125.0,
+        "y": 7.5,
+        "z": 2.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_009",
+        "kind": "ble",
+        "x": 140.0,
+        "y": 7.5,
+        "z": 2.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_010",
+        "kind": "ble",
+        "x": 155.0,
+        "y": 7.5,
+        "z": 2.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_011",
+        "kind": "ble",
+        "x": 170.5,
+        "y": 7.5,
+        "z": 2.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_012",
+        "kind": "ble",
+        "x": 185.0,
+        "y": 7.5,
+        "z": 2.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_013",
+        "kind": "ble",
+        "x": 200.5,
+        "y": 7.5,
+        "z": 2.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_014",
+        "kind": "ble",
+        "x": 215.5,
+        "y": 7.5,
+        "z": 2.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_015",
+        "kind": "ble",
+        "x": 230.0,
+        "y": 7.5,
+        "z": 2.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_016",
+        "kind": "ble",
+        "x": 245.0,
+        "y": 7.5,
+        "z": 2.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_017",
+        "kind": "ble",
+        "x": 5.0,
+        "y": 22.5,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_018",
+        "kind": "ble",
+        "x": 20.0,
+        "y": 22.5,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_019",
+        "kind": "ble",
+        "x": 35.0,
+        "y": 22.5,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_020",
+        "kind": "ble",
+        "x": 50.0,
+        "y": 22.5,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_021",
+        "kind": "ble",
+        "x": 65.0,
+        "y": 22.5,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_022",
+        "kind": "ble",
+        "x": 80.0,
+        "y": 22.5,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_023",
+        "kind": "ble",
+        "x": 95.0,
+        "y": 22.5,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_024",
+        "kind": "ble",
+        "x": 110.0,
+        "y": 22.5,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_025",
+        "kind": "ble",
+        "x": 125.0,
+        "y": 22.5,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_026",
+        "kind": "ble",
+        "x": 140.0,
+        "y": 22.5,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_027",
+        "kind": "ble",
+        "x": 155.0,
+        "y": 22.5,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_028",
+        "kind": "ble",
+        "x": 170.0,
+        "y": 22.5,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_029",
+        "kind": "ble",
+        "x": 185.0,
+        "y": 22.5,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_030",
+        "kind": "ble",
+        "x": 200.0,
+        "y": 22.5,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_031",
+        "kind": "ble",
+        "x": 215.0,
+        "y": 22.5,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_032",
+        "kind": "ble",
+        "x": 230.0,
+        "y": 22.5,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_033",
+        "kind": "ble",
+        "x": 245.0,
+        "y": 22.5,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_034",
+        "kind": "ble",
+        "x": 5.0,
+        "y": 37.5,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_035",
+        "kind": "ble",
+        "x": 20.0,
+        "y": 37.5,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_036",
+        "kind": "ble",
+        "x": 35.0,
+        "y": 37.5,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_037",
+        "kind": "ble",
+        "x": 50.0,
+        "y": 37.5,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_038",
+        "kind": "ble",
+        "x": 65.0,
+        "y": 37.5,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_039",
+        "kind": "ble",
+        "x": 80.0,
+        "y": 37.5,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_040",
+        "kind": "ble",
+        "x": 95.0,
+        "y": 37.5,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_041",
+        "kind": "ble",
+        "x": 110.0,
+        "y": 37.5,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_042",
+        "kind": "ble",
+        "x": 125.0,
+        "y": 37.5,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_043",
+        "kind": "ble",
+        "x": 140.0,
+        "y": 37.5,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_044",
+        "kind": "ble",
+        "x": 155.0,
+        "y": 37.5,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_045",
+        "kind": "ble",
+        "x": 170.0,
+        "y": 37.5,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_046",
+        "kind": "ble",
+        "x": 185.0,
+        "y": 37.5,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_047",
+        "kind": "ble",
+        "x": 200.0,
+        "y": 37.5,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_048",
+        "kind": "ble",
+        "x": 215.0,
+        "y": 37.5,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_049",
+        "kind": "ble",
+        "x": 230.0,
+        "y": 37.5,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_050",
+        "kind": "ble",
+        "x": 245.0,
+        "y": 37.5,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_051",
+        "kind": "ble",
+        "x": 5.0,
+        "y": 52.5,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_052",
+        "kind": "ble",
+        "x": 20.0,
+        "y": 52.5,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_053",
+        "kind": "ble",
+        "x": 35.0,
+        "y": 52.5,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_054",
+        "kind": "ble",
+        "x": 50.0,
+        "y": 52.5,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_055",
+        "kind": "ble",
+        "x": 65.0,
+        "y": 52.5,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_056",
+        "kind": "ble",
+        "x": 80.0,
+        "y": 52.5,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_057",
+        "kind": "ble",
+        "x": 95.0,
+        "y": 52.5,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_058",
+        "kind": "ble",
+        "x": 110.0,
+        "y": 52.5,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_059",
+        "kind": "ble",
+        "x": 125.5,
+        "y": 52.5,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_060",
+        "kind": "ble",
+        "x": 140.0,
+        "y": 52.5,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_061",
+        "kind": "ble",
+        "x": 155.0,
+        "y": 52.5,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_062",
+        "kind": "ble",
+        "x": 170.0,
+        "y": 52.5,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_063",
+        "kind": "ble",
+        "x": 185.0,
+        "y": 52.5,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_064",
+        "kind": "ble",
+        "x": 200.0,
+        "y": 52.5,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_065",
+        "kind": "ble",
+        "x": 215.0,
+        "y": 52.5,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_066",
+        "kind": "ble",
+        "x": 230.0,
+        "y": 52.5,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_067",
+        "kind": "ble",
+        "x": 245.0,
+        "y": 52.5,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_068",
+        "kind": "ble",
+        "x": 11.25,
+        "y": 12.0,
+        "z": 2.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_069",
+        "kind": "ble",
+        "x": 161.25,
+        "y": 5.0,
+        "z": 2.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_070",
+        "kind": "ble",
+        "x": 188.75,
+        "y": 5.0,
+        "z": 2.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_071",
+        "kind": "ble",
+        "x": 43.75,
+        "y": 18.0,
+        "z": 2.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_072",
+        "kind": "ble",
+        "x": 126.25,
+        "y": 18.0,
+        "z": 2.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_073",
+        "kind": "ble",
+        "x": 96.25,
+        "y": 12.0,
+        "z": 2.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_074",
+        "kind": "ble",
+        "x": 211.25,
+        "y": 5.0,
+        "z": 2.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_075",
+        "kind": "ble",
+        "x": 146.25,
+        "y": 5.0,
+        "z": 2.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_076",
+        "kind": "ble",
+        "x": 233.75,
+        "y": 12.0,
+        "z": 2.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_077",
+        "kind": "ble",
+        "x": 117.5,
+        "y": 30.0,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_078",
+        "kind": "ble",
+        "x": 132.5,
+        "y": 30.0,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_079",
+        "kind": "ble",
+        "x": 222.5,
+        "y": 30.0,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_080",
+        "kind": "ble",
+        "x": 42.5,
+        "y": 30.0,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_081",
+        "kind": "ble",
+        "x": 247.5,
+        "y": 25.0,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_082",
+        "kind": "ble",
+        "x": 192.5,
+        "y": 30.0,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_083",
+        "kind": "ble",
+        "x": 87.5,
+        "y": 30.0,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_084",
+        "kind": "ble",
+        "x": 31.25,
+        "y": 12.0,
+        "z": 2.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_085",
+        "kind": "ble",
+        "x": 27.5,
+        "y": 30.0,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_086",
+        "kind": "ble",
+        "x": 27.5,
+        "y": 45.0,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_087",
+        "kind": "ble",
+        "x": 188.75,
+        "y": 12.0,
+        "z": 2.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_088",
+        "kind": "ble",
+        "x": 177.5,
+        "y": 30.0,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_089",
+        "kind": "ble",
+        "x": 207.5,
+        "y": 30.0,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_090",
+        "kind": "ble",
+        "x": 73.75,
+        "y": 5.0,
+        "z": 2.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_091",
+        "kind": "ble",
+        "x": 162.5,
+        "y": 30.0,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_092",
+        "kind": "ble",
+        "x": 72.5,
+        "y": 30.0,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_093",
+        "kind": "ble",
+        "x": 58.75,
+        "y": 12.0,
+        "z": 2.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_094",
+        "kind": "ble",
+        "x": 57.5,
+        "y": 30.0,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_095",
+        "kind": "ble",
+        "x": 147.5,
+        "y": 30.0,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_096",
+        "kind": "ble",
+        "x": 161.25,
+        "y": 12.0,
+        "z": 2.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_097",
+        "kind": "ble",
+        "x": 237.5,
+        "y": 45.0,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_098",
+        "kind": "ble",
+        "x": 102.5,
+        "y": 30.0,
+        "z": 9.95,
+        "mount": "ceiling"
+      },
+      {
+        "id": "ble_099",
+        "kind": "ble",
+        "x": 11.25,
+        "y": 5.0,
+        "z": 2.95,
+        "mount": "ceiling"
       }
     ]
   }
