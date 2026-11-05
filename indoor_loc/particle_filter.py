@@ -39,7 +39,7 @@ class FilterConfig:
     use_wifi: bool = False  # BLE only until its error is reasonable.
     use_steps: bool = True
     idle_noise_m: float = 0.2  # Spread per scan when no steps are available.
-    ble_model: str = "zone"  # "zone", "zone_off" (L = 0) or "plain" (refitted without L).
+    ble_model: str = "multi_wall"  # Or "zone", "zone_off" and "plain" for comparison.
 
 
 def student_logpdf(residual, sigma, dof):
@@ -73,6 +73,10 @@ class ParticleFilter:
             self.wall_loss = 0.0
         if config.ble_model == "plain":
             self.p0, self.n = float(survey["p0_plain"]), float(survey["n_plain"])
+        self.wall_db = None
+        if config.ble_model == "multi_wall":
+            self.p0, self.n = float(survey["multi_a"]), float(survey["multi_n"])
+            self.wall_db = (survey["wall_counts"] @ survey["multi_losses"]).astype(np.float32)
         self.wifi_map = survey["wifi_map"]
         self.wifi_step = float(survey["xs"][1] - survey["xs"][0])
         self.wifi_origin = float(survey["xs"][0])
@@ -161,7 +165,12 @@ class ParticleFilter:
         ix = np.clip((self.xy[:, 0] / CELL).astype(int), 0, self.zones.shape[1] - 1)
         iy = np.clip((self.xy[:, 1] / CELL).astype(int), 0, self.zones.shape[0] - 1)
         different = self.zones[iy, ix][:, None] != self.tag_zones[tags]
-        return self.p0 - 10 * self.n * np.log10(np.maximum(d, 0.5)) - self.wall_loss * different
+        expected = self.p0 - 10 * self.n * np.log10(np.maximum(d, 0.5))
+        if self.wall_db is None:
+            return expected - self.wall_loss * different
+        gy = np.clip(self.xy[:, 1].astype(int), 0, self.wall_db.shape[1] - 1)
+        gx = np.clip(self.xy[:, 0].astype(int), 0, self.wall_db.shape[2] - 1)
+        return expected - self.wall_db[tags[:, None], gy, gx].T
 
     def update_ble(self, rssi):
         tags = self._strongest(rssi, self.config.ble_top_k)
@@ -261,6 +270,7 @@ VARIANTS = {
     "no_steps": replace(FilterConfig(), use_steps=False),
     "zone_off": replace(FilterConfig(), ble_model="zone_off"),
     "plain": replace(FilterConfig(), ble_model="plain"),
+    "old_zone": replace(FilterConfig(), ble_model="zone"),
     "all_tags": replace(FilterConfig(), ble_top_k=ALL_TAGS),
     "all_tags_soft": replace(FilterConfig(), ble_top_k=ALL_TAGS, tempering=0.5 * 10 / 66),
 }

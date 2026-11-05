@@ -32,7 +32,7 @@ def test_resampling_follows_the_weights():
 
 
 def test_particles_cannot_cross_a_wall():
-    filter_ = pf.ParticleFilter(small_survey(), pf.FilterConfig(particles=100), np.random.default_rng(0))
+    filter_ = pf.ParticleFilter(small_survey(), pf.FilterConfig(particles=100, ble_model="zone"), np.random.default_rng(0))
     filter_.xy = np.full((100, 2), [20.5, 10.0]) - [1.0, 0.0]  # Just west of a room wall at x = 20.
     filter_.heading = np.zeros(100)
     filter_.bias = np.zeros(100)
@@ -60,6 +60,6 @@ def test_filter_tracks_a_straight_walk():
         "wifi_time": np.array([]), "wifi_2g4_rssi": np.empty((0, 1)), "wifi_5g_rssi": np.empty((0, 1)),
         "step_time": step_time, "step_length": np.full(len(step_time), 0.72), "step_turn": np.zeros(len(step_time)),
     }
-    result = pf.run(log, survey, pf.FilterConfig(particles=1500), seed=2)
+    result = pf.run(log, survey, pf.FilterConfig(particles=1500, ble_model="zone"), seed=2)
     error = np.hypot(*(result["position"] - truth).T)
     assert np.median(error[30:]) < 3.0

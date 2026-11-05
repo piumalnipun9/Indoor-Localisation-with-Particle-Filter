@@ -76,11 +76,20 @@ def paired_difference(rows, baseline, method, crowd, seeds):
     return change.mean(), np.percentile(draws, 2.5), np.percentile(draws, 97.5), int(np.sum(change < 0))
 
 
+def crowd_effect(rows, method, crowd, seeds):
+    """Mean per-run change in median error against the same path with no crowd."""
+    empty = {seed: np.median(e) for seed, _, e in rows[(method, "none")]}
+    busy = {seed: np.median(e) for seed, _, e in rows[(method, crowd)]}
+    change = np.array([busy[s] - empty[s] for s in seeds])
+    draws = np.random.default_rng(0).choice(change, (BOOTSTRAP_DRAWS, len(change))).mean(axis=1)
+    return change.mean(), np.percentile(draws, 2.5), np.percentile(draws, 97.5), int(np.sum(change > 0))
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--seeds", type=int, nargs="+", required=True)
     parser.add_argument("--crowds", nargs="+", default=["none"])
-    parser.add_argument("--methods", nargs="+", default=["plain", "zone_off", "full"])
+    parser.add_argument("--methods", nargs="+", default=["full"])
     parser.add_argument("--baseline", default="full")
     parser.add_argument("--workers", type=int, default=4)
     parser.add_argument("--name", default="results")
@@ -114,6 +123,13 @@ def main():
             if method != args.baseline:
                 mean, low, high, wins = paired_difference(rows, args.baseline, method, crowd, args.seeds)
                 print(f"  {method:<14}{crowd:<8}{mean:+.2f} m  (95% interval {low:+.2f} to {high:+.2f}), better in {wins}/{len(args.seeds)} runs")
+    if "none" in args.crowds and len(args.crowds) > 1:
+        print("\nSame paths compared with no crowd (positive is worse):")
+        for method in args.methods:
+            for crowd in args.crowds:
+                if crowd != "none":
+                    mean, low, high, worse = crowd_effect(rows, method, crowd, args.seeds)
+                    print(f"  {method:<14}{crowd:<8}{mean:+.2f} m  (95% interval {low:+.2f} to {high:+.2f}), worse in {worse}/{len(args.seeds)} runs")
     (ROOT / "outputs" / f"{args.name}.json").write_text(json.dumps(table, indent=2))
 
     fig, ax = plt.subplots(figsize=(8, 5), constrained_layout=True)
