@@ -11,3 +11,6 @@ outputs/
 
 # Generated radio maps
 data/radio_maps/
+
+# Generated simulation logs
+data/sim/

@@ -18,6 +18,7 @@ sys.path.insert(0, str(ROOT))
 
 from indoor_loc import floorplan as fp  # noqa: E402
 from indoor_loc import layouts as ly  # noqa: E402
+from indoor_loc import sensors  # noqa: E402
 
 TX_POWERS_DBM = (0.0, -12.0)
 SENSITIVITY_DBM = -90.0
@@ -29,9 +30,7 @@ HALL = -1
 
 
 def rssi_maps(name, tx_power):
-    data = np.load(ROOT / "data" / "radio_maps" / f"{name}__ble.npz")
-    gain = np.maximum(data["path_gain"], 1e-20)
-    rssi = tx_power + 10 * np.log10(gain)
+    rssi = tx_power + sensors.load_path_gain_db(ROOT / "data" / "radio_maps" / f"{name}__ble.npz")
     return gaussian_filter(rssi, sigma=(0, SMOOTH_METRES / CELL, SMOOTH_METRES / CELL)).astype(np.float32)
 
 
