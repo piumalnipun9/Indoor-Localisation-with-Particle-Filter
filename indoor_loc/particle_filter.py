@@ -24,6 +24,7 @@ class FilterConfig:
     heading_noise_rad: float = np.deg2rad(3.0)
     bias_sd_rad_s: float = 0.003
     ble_top_k: int = 10
+    ble_pick: str = "strongest"  # Or "wall_shared" and "wall_each", which add back the wall loss first.
     ble_sigma_db: float = 6.0
     wifi_top_k: int = 8
     wifi_sigma_db: float = 7.0
@@ -39,7 +40,8 @@ class FilterConfig:
     use_wifi: bool = False  # BLE only until its error is reasonable.
     use_steps: bool = True
     idle_noise_m: float = 0.2  # Spread per scan when no steps are available.
-    ble_model: str = "multi_wall"  # Or "zone", "zone_off" and "plain" for comparison.
+    ble_model: str = "fingerprint"  # Or "multi_wall", and "zone", "zone_off", "plain" for comparison.
+    map_every: int = 1  # Keep every n-th survey point of the fingerprint map in each direction.
 
 
 def student_logpdf(residual, sigma, dof):
@@ -80,6 +82,8 @@ class ParticleFilter:
         self.wifi_map = survey["wifi_map"]
         self.wifi_step = float(survey["xs"][1] - survey["xs"][0])
         self.wifi_origin = float(survey["xs"][0])
+        if config.ble_model == "fingerprint":
+            self.ble_map = survey["ble_map"][:, :: config.map_every, :: config.map_every]
         self.xy = None
 
     def is_free(self, xy):
@@ -157,7 +161,14 @@ class ParticleFilter:
         self.weights = self.weights * np.exp(np.clip(log_like - peak, -300, 0))
         self._normalise()
 
+    def _from_map(self, grid, items, step):
+        """Bilinear map lookup at every particle: (particles, items)."""
+        coords = (self.xy[:, ::-1].T - self.wifi_origin) / step
+        return np.stack([map_coordinates(grid[i], coords, order=1, mode="nearest") for i in items], axis=1)
+
     def expected_ble(self, tags):
+        if self.config.ble_model == "fingerprint":
+            return self._from_map(self.ble_map, tags, self.wifi_step * self.config.map_every)
         tag = self.tags[tags]
         dx = self.xy[:, None, 0] - tag[:, 0]
         dy = self.xy[:, None, 1] - tag[:, 1]
@@ -168,25 +179,44 @@ class ParticleFilter:
         expected = self.p0 - 10 * self.n * np.log10(np.maximum(d, 0.5))
         if self.wall_db is None:
             return expected - self.wall_loss * different
+        return expected - self.wall_loss_db(tags)
+
+    def wall_loss_db(self, tags):
+        """Modelled wall loss from each particle to each tag: (particles, tags)."""
         gy = np.clip(self.xy[:, 1].astype(int), 0, self.wall_db.shape[1] - 1)
         gx = np.clip(self.xy[:, 0].astype(int), 0, self.wall_db.shape[2] - 1)
-        return expected - self.wall_db[tags[:, None], gy, gx].T
+        return self.wall_db[tags[:, None], gy, gx].T
 
     def update_ble(self, rssi):
-        tags = self._strongest(rssi, self.config.ble_top_k)
-        if len(tags) == 0:
+        c = self.config
+        heard = np.flatnonzero(~np.isnan(rssi))
+        if len(heard) == 0:
             return
-        self._apply(self._score(rssi[tags] - self.expected_ble(tags), self.config.ble_sigma_db))
+        if c.ble_pick == "wall_each":
+            self._apply(self._score(self._each_particle_residuals(rssi, heard), c.ble_sigma_db))
+            return
+        readings = rssi[heard]
+        if c.ble_pick == "wall_shared":
+            readings = readings + self.weights @ self.wall_loss_db(heard)
+        tags = heard[np.argsort(-readings)[: c.ble_top_k]]
+        self._apply(self._score(rssi[tags] - self.expected_ble(tags), c.ble_sigma_db))
+
+    def _each_particle_residuals(self, rssi, heard):
+        """Residuals on each particle's own strongest tags after adding back its wall loss."""
+        k = self.config.ble_top_k
+        residual = rssi[heard] - self.expected_ble(heard)
+        if len(heard) <= k:
+            return residual
+        corrected = rssi[heard] + self.wall_loss_db(heard)
+        chosen = np.argpartition(-corrected, k - 1, axis=1)[:, :k]
+        return np.take_along_axis(residual, chosen, axis=1)
 
     def update_wifi(self, rssi):
         heard = np.flatnonzero(~np.isnan(rssi))
         if len(heard) == 0:
             return
         aps = heard[np.argsort(-rssi[heard])[: self.config.wifi_top_k]]
-        coords = (self.xy[:, ::-1].T - self.wifi_origin) / self.wifi_step
-        coords[0] = (self.xy[:, 1] - self.wifi_origin) / self.wifi_step
-        coords[1] = (self.xy[:, 0] - self.wifi_origin) / self.wifi_step
-        expected = np.stack([map_coordinates(self.wifi_map[a], coords, order=1, mode="nearest") for a in aps], axis=1)
+        expected = self._from_map(self.wifi_map, aps, self.wifi_step)
         self._apply(self._score(rssi[aps] - expected, self.config.wifi_sigma_db))
 
     def resample_if_needed(self, rssi):
@@ -271,6 +301,12 @@ VARIANTS = {
     "zone_off": replace(FilterConfig(), ble_model="zone_off"),
     "plain": replace(FilterConfig(), ble_model="plain"),
     "old_zone": replace(FilterConfig(), ble_model="zone"),
-    "all_tags": replace(FilterConfig(), ble_top_k=ALL_TAGS),
-    "all_tags_soft": replace(FilterConfig(), ble_top_k=ALL_TAGS, tempering=0.5 * 10 / 66),
+    "multi_wall": replace(FilterConfig(), ble_model="multi_wall"),
+    "wall_shared": replace(FilterConfig(), ble_model="multi_wall", ble_pick="wall_shared"),
+    "wall_each": replace(FilterConfig(), ble_model="multi_wall", ble_pick="wall_each"),
+    "sigma_4": replace(FilterConfig(), ble_sigma_db=4.0),
+    "map_6m": replace(FilterConfig(), map_every=2),
+    "all_tags_map": replace(FilterConfig(), ble_top_k=ALL_TAGS, tempering=0.1),
+    "all_tags": replace(FilterConfig(), ble_model="multi_wall", ble_top_k=ALL_TAGS),
+    "all_tags_soft": replace(FilterConfig(), ble_model="multi_wall", ble_top_k=ALL_TAGS, tempering=0.5 * 10 / 66),
 }

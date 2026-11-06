@@ -1,7 +1,7 @@
 """Simulate the site survey an installer would do in the empty building.
 
-The result is all the filter may know about radio: a fitted path-loss model for BLE
-and a coarse Wi-Fi fingerprint map. It never sees the Sionna maps directly.
+The result is all the filter may know about radio: fitted path-loss models and a
+coarse fingerprint map for BLE, and one for Wi-Fi. It never sees the Sionna maps directly.
 """
 import sys
 from pathlib import Path
@@ -82,6 +82,7 @@ def main():
     (p0_plain, n_plain), spread_plain = fit_path_loss(ble, points, ble_readings, use_zones=False)
 
     multi, spread_multi = fit_multi_wall(ble, points, ble_readings)
+    ble_map = np.maximum(ble_readings, FAR_DBM).reshape(-1, len(ys), len(xs)).astype(np.float32)
     grid = wm.count_grid(ble.positions)
 
     wifi = []
@@ -94,7 +95,7 @@ def main():
     np.savez_compressed(
         path, p0=p0, n=n, wall_loss=wall, p0_plain=p0_plain, n_plain=n_plain,
         multi_a=multi[0], multi_n=multi[1], multi_losses=multi[2:], wall_counts=grid,
-        xs=xs, ys=ys, wifi_map=wifi, tags=ble.positions,
+        xs=xs, ys=ys, wifi_map=wifi, ble_map=ble_map, tags=ble.positions,
     )
     print(f"BLE model: P0 {p0:.1f} dBm, n {n:.2f}, zone change {wall:.1f} dB, fit error {spread:.1f} dB")
     print(f"Without zones: P0 {p0_plain:.1f} dBm, n {n_plain:.2f}, fit error {spread_plain:.1f} dB")

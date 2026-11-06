@@ -63,3 +63,47 @@ def test_filter_tracks_a_straight_walk():
     result = pf.run(log, survey, pf.FilterConfig(particles=1500, ble_model="zone"), seed=2)
     error = np.hypot(*(result["position"] - truth).T)
     assert np.median(error[30:]) < 3.0
+
+
+def wall_filter(pick, top_k=1):
+    survey = small_survey()
+    survey["tags"] = np.array([[10.0, 30.0, 3.0], [12.0, 30.0, 3.0]], dtype=np.float32)
+    survey["multi_a"], survey["multi_n"] = -60.0, 1.5
+    survey["multi_losses"] = np.array([10.0])
+    survey["wall_counts"] = np.zeros((2, 60, 250, 1), dtype=np.uint8)
+    survey["wall_counts"][1, :, 100:] = 1  # Tag 1 is behind a wall for particles past x = 100.
+    filter_ = pf.ParticleFilter(survey, pf.FilterConfig(particles=2, ble_model="multi_wall", ble_top_k=top_k, ble_pick=pick), np.random.default_rng(0))
+    filter_.xy = np.array([[50.0, 30.0], [150.0, 30.0]])
+    filter_.weights = np.array([0.5, 0.5])
+    return filter_
+
+
+def test_wall_loss_changes_which_tag_is_strongest():
+    rssi = np.array([-80.0, -82.0])  # Tag 0 reads stronger, tag 1 is stronger once its wall is added back.
+    filter_ = wall_filter("wall_each")
+    residual = rssi[None, :] - filter_.expected_ble(np.array([0, 1]))
+    chosen = filter_._each_particle_residuals(rssi, np.array([0, 1]))
+    assert chosen[0, 0] == residual[0, 0]
+    assert chosen[1, 0] == residual[1, 1]
+
+
+def test_every_particle_shares_the_tags_with_the_averaged_correction():
+    filter_ = wall_filter("wall_shared")
+    seen = []
+    filter_.expected_ble = lambda tags: seen.append(tags.copy()) or np.zeros((2, len(tags)))
+    filter_.update_ble(np.array([-80.0, -82.0]))  # Average wall loss on tag 1 is 5 dB, so it wins.
+    assert seen[-1].tolist() == [1]
+
+
+def test_fingerprint_reads_between_survey_points():
+    survey = small_survey()
+    survey["xs"] = np.array([1.5, 4.5, 7.5, 10.5, 13.5])
+    grid = np.tile(survey["xs"], (5, 1))  # RSSI equals x, so a lookup returns the position.
+    survey["ble_map"] = np.stack([grid, grid + 10.0]).astype(np.float32)
+    config = pf.FilterConfig(particles=2, ble_model="fingerprint")
+    filter_ = pf.ParticleFilter(survey, config, np.random.default_rng(0))
+    filter_.xy = np.array([[3.0, 3.0], [12.0, 9.0]])
+    assert np.allclose(filter_.expected_ble(np.array([0, 1])), [[3.0, 13.0], [12.0, 22.0]])
+    filter_ = pf.ParticleFilter(survey, pf.FilterConfig(particles=2, ble_model="fingerprint", map_every=2), np.random.default_rng(0))
+    filter_.xy = np.array([[3.0, 3.0], [12.0, 9.0]])
+    assert np.allclose(filter_.expected_ble(np.array([0])), [[3.0], [12.0]])
