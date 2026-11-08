@@ -1,4 +1,4 @@
-"""Particle filter for position and heading from steps, BLE, Wi-Fi and the floor plan.
+"""Particle filter for position and heading from steps, BLE and the floor plan.
 
 It only reads the phone log and data/survey.npz, never the true path or Sionna maps.
 State per particle: x, y, heading, gyro bias and a stride scale.
@@ -7,7 +7,6 @@ from dataclasses import dataclass, replace
 
 import numpy as np
 from scipy.ndimage import map_coordinates
-from scipy.special import gammaln
 
 from . import floorplan as fp
 
@@ -26,10 +25,6 @@ class FilterConfig:
     ble_top_k: int = 10
     ble_pick: str = "strongest"  # Or "wall_shared" and "wall_each", which add back the wall loss first.
     ble_sigma_db: float = 6.0
-    wifi_top_k: int = 8
-    wifi_sigma_db: float = 7.0
-    student_dof: float = 3.0
-    likelihood: str = "student"  # "student" or "gaussian"
     tempering: float = 0.5  # Readings share errors, so each counts for less than one.
     offset_shrink: float = 0.5
     offset_limit_db: float = 8.0
@@ -37,19 +32,10 @@ class FilterConfig:
     inject_fraction: float = 0.01
     inject_sd_m: float = 6.0
     use_walls: bool = True
-    use_wifi: bool = False  # BLE only until its error is reasonable.
     use_steps: bool = True
     idle_noise_m: float = 0.2  # Spread per scan when no steps are available.
     ble_model: str = "fingerprint"  # Or "multi_wall", and "zone", "zone_off", "plain" for comparison.
     map_every: int = 1  # Keep every n-th survey point of the fingerprint map in each direction.
-
-
-def student_logpdf(residual, sigma, dof):
-    z = residual / sigma
-    return (
-        gammaln((dof + 1) / 2) - gammaln(dof / 2) - 0.5 * np.log(dof * np.pi) - np.log(sigma)
-        - (dof + 1) / 2 * np.log1p(z * z / dof)
-    )
 
 
 def gaussian_logpdf(residual, sigma):
@@ -79,9 +65,8 @@ class ParticleFilter:
         if config.ble_model == "multi_wall":
             self.p0, self.n = float(survey["multi_a"]), float(survey["multi_n"])
             self.wall_db = (survey["wall_counts"] @ survey["multi_losses"]).astype(np.float32)
-        self.wifi_map = survey["wifi_map"]
-        self.wifi_step = float(survey["xs"][1] - survey["xs"][0])
-        self.wifi_origin = float(survey["xs"][0])
+        self.map_step = float(survey["xs"][1] - survey["xs"][0])
+        self.map_origin = float(survey["xs"][0])
         if config.ble_model == "fingerprint":
             self.ble_map = survey["ble_map"][:, :: config.map_every, :: config.map_every]
         self.xy = None
@@ -150,11 +135,7 @@ class ParticleFilter:
         c = self.config
         offset = np.clip(residual.mean(axis=1, keepdims=True), -c.offset_limit_db, c.offset_limit_db)
         residual = residual - c.offset_shrink * offset
-        if c.likelihood == "student":
-            log_like = student_logpdf(residual, sigma, c.student_dof)
-        else:
-            log_like = gaussian_logpdf(residual, sigma)
-        return c.tempering * log_like.sum(axis=1)
+        return c.tempering * gaussian_logpdf(residual, sigma).sum(axis=1)
 
     def _apply(self, log_like):
         peak = log_like[self.weights > 0].max() if np.any(self.weights > 0) else log_like.max()
@@ -163,12 +144,12 @@ class ParticleFilter:
 
     def _from_map(self, grid, items, step):
         """Bilinear map lookup at every particle: (particles, items)."""
-        coords = (self.xy[:, ::-1].T - self.wifi_origin) / step
+        coords = (self.xy[:, ::-1].T - self.map_origin) / step
         return np.stack([map_coordinates(grid[i], coords, order=1, mode="nearest") for i in items], axis=1)
 
     def expected_ble(self, tags):
         if self.config.ble_model == "fingerprint":
-            return self._from_map(self.ble_map, tags, self.wifi_step * self.config.map_every)
+            return self._from_map(self.ble_map, tags, self.map_step * self.config.map_every)
         tag = self.tags[tags]
         dx = self.xy[:, None, 0] - tag[:, 0]
         dy = self.xy[:, None, 1] - tag[:, 1]
@@ -211,14 +192,6 @@ class ParticleFilter:
         chosen = np.argpartition(-corrected, k - 1, axis=1)[:, :k]
         return np.take_along_axis(residual, chosen, axis=1)
 
-    def update_wifi(self, rssi):
-        heard = np.flatnonzero(~np.isnan(rssi))
-        if len(heard) == 0:
-            return
-        aps = heard[np.argsort(-rssi[heard])[: self.config.wifi_top_k]]
-        expected = self._from_map(self.wifi_map, aps, self.wifi_step)
-        self._apply(self._score(rssi[aps] - expected, self.config.wifi_sigma_db))
-
     def resample_if_needed(self, rssi):
         c = self.config
         effective = 1.0 / np.sum(self.weights**2)
@@ -250,12 +223,10 @@ def run(log, survey, config=FilterConfig(), seed=0, cloud_size=0):
     rng = np.random.default_rng(seed)
     pf = ParticleFilter(survey, config, rng)
     ble_time, ble = log["ble_time"], log["ble_rssi"]
-    wifi_time = log["wifi_time"]
-    wifi = np.concatenate([log["wifi_2g4_rssi"], log["wifi_5g_rssi"]], axis=1)
     steps = (log["step_time"], log["step_length"], log["step_turn"])
 
     pf.initialise(ble[0])
-    step_index, wifi_index = 0, 0
+    step_index = 0
     last_step_time = 0.0
     positions, headings, spreads, clouds = [], [], [], []
     for n, now in enumerate(ble_time):
@@ -270,9 +241,6 @@ def run(log, survey, config=FilterConfig(), seed=0, cloud_size=0):
         if not stepped and not config.use_steps:
             pf.spread_without_steps()
         pf.update_ble(ble[n])
-        if config.use_wifi and wifi_index < len(wifi_time) and wifi_time[wifi_index] <= now:
-            pf.update_wifi(wifi[wifi_index])
-            wifi_index += 1
         pf.resample_if_needed(ble[n])
         position, heading, spread = pf.estimate()
         positions.append(position)
@@ -294,9 +262,7 @@ ALL_TAGS = 1000
 
 VARIANTS = {
     "full": FilterConfig(),
-    "gaussian": replace(FilterConfig(), likelihood="gaussian"),
     "no_walls": replace(FilterConfig(), use_walls=False),
-    "with_wifi": replace(FilterConfig(), use_wifi=True),
     "no_steps": replace(FilterConfig(), use_steps=False),
     "zone_off": replace(FilterConfig(), ble_model="zone_off"),
     "plain": replace(FilterConfig(), ble_model="plain"),
@@ -307,6 +273,7 @@ VARIANTS = {
     "sigma_4": replace(FilterConfig(), ble_sigma_db=4.0),
     "map_6m": replace(FilterConfig(), map_every=2),
     "all_tags_map": replace(FilterConfig(), ble_top_k=ALL_TAGS, tempering=0.1),
+    "map_12m": replace(FilterConfig(), map_every=4),
     "all_tags": replace(FilterConfig(), ble_model="multi_wall", ble_top_k=ALL_TAGS),
     "all_tags_soft": replace(FilterConfig(), ble_model="multi_wall", ble_top_k=ALL_TAGS, tempering=0.5 * 10 / 66),
 }

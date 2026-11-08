@@ -93,6 +93,7 @@ def main():
     parser.add_argument("--baseline", default="full")
     parser.add_argument("--workers", type=int, default=4)
     parser.add_argument("--name", default="results")
+    parser.add_argument("--out-dir", type=Path, default=ROOT / "outputs")
     args = parser.parse_args()
 
     jobs = [(c, s, m) for c in args.crowds for s in args.seeds for m in args.methods]
@@ -130,7 +131,12 @@ def main():
                 if crowd != "none":
                     mean, low, high, worse = crowd_effect(rows, method, crowd, args.seeds)
                     print(f"  {method:<14}{crowd:<8}{mean:+.2f} m  (95% interval {low:+.2f} to {high:+.2f}), worse in {worse}/{len(args.seeds)} runs")
-    (ROOT / "outputs" / f"{args.name}.json").write_text(json.dumps(table, indent=2))
+    args.out_dir.mkdir(parents=True, exist_ok=True)
+    (args.out_dir / f"{args.name}.json").write_text(json.dumps(table, indent=2))
+    lines = ["method,crowd,seed," + ",".join(keys)]
+    for crowd, seed, method, metrics, _ in sorted(results, key=lambda r: (r[2], r[0], r[1])):
+        lines.append(f"{method},{crowd},{seed}," + ",".join(f"{metrics[k]:.3f}" for k in keys))
+    (args.out_dir / f"{args.name}_runs.csv").write_text("\n".join(lines) + "\n")
 
     fig, ax = plt.subplots(figsize=(8, 5), constrained_layout=True)
     for method in args.methods:
@@ -141,7 +147,7 @@ def main():
     ax.set_ylabel("Fraction of time error is below this")
     ax.grid(alpha=0.3)
     ax.legend()
-    fig.savefig(ROOT / "outputs" / f"{args.name}_cdf.png", dpi=130)
+    fig.savefig(args.out_dir / f"{args.name}_cdf.png", dpi=130)
 
 
 if __name__ == "__main__":

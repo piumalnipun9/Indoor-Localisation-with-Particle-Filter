@@ -15,14 +15,13 @@ def small_survey():
     tags = np.array([[x, y, 3.0] for x in xs for y in ys], dtype=np.float32)
     return {
         "p0": -55.0, "n": 2.0, "wall_loss": 0.0, "xs": xs, "ys": ys,
-        "wifi_map": np.zeros((1, len(ys), len(xs)), dtype=np.float32), "tags": tags,
+        "tags": tags,
     }
 
 
-def test_student_keeps_outliers_alive_and_gaussian_does_not():
-    gap_student = pf.student_logpdf(0.0, 5.0, 3.0) - pf.student_logpdf(20.0, 5.0, 3.0)
-    gap_gaussian = pf.gaussian_logpdf(0.0, 5.0) - pf.gaussian_logpdf(20.0, 5.0)
-    assert gap_student < gap_gaussian / 2
+def test_gaussian_log_density():
+    assert np.isclose(pf.gaussian_logpdf(0.0, 2.0), -np.log(2.0) - 0.5 * np.log(2 * np.pi))
+    assert np.isclose(pf.gaussian_logpdf(4.0, 2.0) - pf.gaussian_logpdf(0.0, 2.0), -2.0)
 
 
 def test_resampling_follows_the_weights():
@@ -57,7 +56,6 @@ def test_filter_tracks_a_straight_walk():
     step_time = np.arange(0.6, 120.0, 0.6)
     log = {
         "ble_time": times, "ble_rssi": rssi,
-        "wifi_time": np.array([]), "wifi_2g4_rssi": np.empty((0, 1)), "wifi_5g_rssi": np.empty((0, 1)),
         "step_time": step_time, "step_length": np.full(len(step_time), 0.72), "step_turn": np.zeros(len(step_time)),
     }
     result = pf.run(log, survey, pf.FilterConfig(particles=1500, ble_model="zone"), seed=2)
