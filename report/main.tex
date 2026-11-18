@@ -25,32 +25,34 @@
 \sisetup{detect-all}
 \newcommand{\dBm}{\,\text{dBm}}
 \newcommand{\dB}{\,\text{dB}}
+\begin{document}
 
-\title{Particle Filter Localisation of a Pedestrian in an Airport Terminal\\
-\large Using Bluetooth Low Energy Beacons and Phone Step Detection}
-\author{Piumal Nipun\\ \small Mini Project: Implementing State Estimation Filters}
+
+
+\title{
+    \vspace{0.5cm}
+    {\Huge\bfseries Indoor Localisation with Particle Filters}\\[0.5cm]
+    {\Large\bfseries Fusing BLE Beacons and Smartphone IMU Step Detection}
+}
+
+\author{
+    \vspace{0.5cm}
+    {\Large\bfseries Sanjeewa PMGPN - 220577U}\\[0.3cm]
+    {\normalsize Mini Project: Implementing State Estimation Filters}\\[0.3cm]
+    {\normalsize Code: \url{https://github.com/piumalnipun9/Indoor-Localisation-with-Particle-Filter}}
+}
+
 \date{\today}
 
-\begin{document}
 \maketitle
 
-\begin{abstract}
-This report implements a particle filter that tracks the position and heading of one
-person walking through a large airport terminal, using only what a smartphone can sense:
-received signal strength (RSSI) from 100 Bluetooth Low Energy (BLE) beacons and the steps
-and turns reported by its inertial sensors. The filter fuses step-driven motion, the floor
-plan as a hard constraint, and BLE measurements. Three measurement models are compared
-inside the same filter: a log-distance path-loss model, a multi-wall (Motley--Keenan)
-model, and a fingerprint map built from a simulated site survey at \SIlist{3;6;12}{m}
-spacing. A \SI{250}{m} $\times$ \SI{60}{m} terminal is simulated with ray tracing in Sionna~RT, and
-phone readings include fading, body and crowd blocking, device offsets and missed
-packets. On 40 test walks the fingerprint filter with a \SI{3}{m} survey reaches a
-median error of \SI{1.3}{m} (90th percentile \SI{2.8}{m}); with a \SI{6}{m} survey,
-\SI{1.7}{m}. The multi-wall and plain models reach \SI{3.1}{m} and \SI{3.5}{m}, and
-BLE alone without the filter \SI{8.4}{m}. Accuracy holds in crowds of 2000 people, and
-removing a shrunken estimate of the phone's signal offset proves essential for that.
-\end{abstract}
+\vspace{1.0cm}
+\begin{center}
+    \includegraphics[width=0.4\linewidth]{figures/University_of_Moratuwa_logo.png}
+\end{center}
 
+
+\newpage
 \tableofcontents
 \newpage
 
@@ -58,12 +60,21 @@ removing a shrunken estimate of the phone's signal offset proves essential for t
 \section{Introduction}
 %=====================================================================================
 
-Satellite navigation does not work inside large buildings, yet an airport is exactly
-where travellers and staff need to know where they are: to find a gate, to be guided
-through security, or to let the operator measure queues and passenger flow. A common
-answer is a network of battery-powered BLE beacons (tags) fixed to ceilings and pillars.
-A phone hears each tag's advertisement once a second and measures its RSSI, which falls
-with distance. The task is to turn those noisy readings into a position.
+Satellite navigation does not work inside large buildings, yet large indoor facilities
+such as airports and shopping malls are exactly where people need to know where they
+are. For example visitors need to find a gate, a shop or an exit, and operators need to guide people, measure queues and understand how visitors move through the building. A common answer is a
+network of battery-powered Bluetooth Low Energy (BLE) beacons (tags) fixed to ceilings
+and pillars. A smartphone hears each tag's advertisement once a second and measures its
+received signal strength (RSSI), which falls with distance. The same phone's inertial
+measurement unit (IMU) detects steps and turns. The idea is to fuse these two noisy
+sources estimate the position of the user.
+
+This project develops an indoor localisation system for any large indoor facility. The
+method needs only a floor plan, a set of beacons and, optionally, a site survey, so it
+applies equally to an airport, a shopping mall, a hospital or an exhibition centre. To
+demonstrate and evaluate it, I used simulated airport terminal as the example site. It is
+large, mostly open, and combines a long concourse with a row of shops and rooms behind
+glass and drywall fronts, a layout it shares with most shopping malls.
 
 This is a state estimation problem with three features that make a particle filter a
 natural choice over a Kalman filter or an extended Kalman filter:
@@ -80,27 +91,29 @@ natural choice over a Kalman filter or an extended Kalman filter:
         crosses a wall, which is impossible to express in a Kalman filter.
 \end{enumerate}
 
-\paragraph{Contributions.} The project
-(i) builds a realistic simulated terminal, using ray tracing for the radio signal and a
-detailed model of phone measurement errors;
-(ii) implements a particle filter with step-driven motion, per-particle stride and gyro
-bias states, map constraints and a robust BLE likelihood with partial removal of the
-phone's unknown signal offset;
-(iii) compares three measurement models of increasing realism and survey cost inside the
-same filter; and
-(iv) studies the filter's sensitivity to its parameters and to crowds of up to 2000
-people.
+\paragraph{Contributions}
+The main contributions of this project are,
+\begin{itemize}
+    \item Develops a realistic simulated indoor environment based on an airport terminal, incorporating ray tracing using Sionna RT for BLE signal propagation and realistic smartphone measurement errors.
 
+    \item Implements a particle filter that fuses BLE beacon measurements with smartphone IMU step detection, incorporating step-driven motion, per-particle stride length and gyroscope bias estimation, floor-plan constraints, and a robust BLE measurement likelihood.
+
+    \item Implements and compares three BLE measurement models with increasing levels of realism and surveying requirements within the same particle-filter framework.
+
+    \item Evaluates the sensitivity of the localisation system to different filter parameters and investigates its scalability in crowded environments containing up to 2000 people.
+\end{itemize}
 %=====================================================================================
 \section{Simulated Environment}
 \label{sec:environment}
 %=====================================================================================
 
-No real airport data was available, so a terminal and everything a phone measures in it
-are simulated. The filter never reads the simulator's internal values: it only sees the
+No measurements from a real building were available, so a demonstration site and
+everything a phone measures in it are simulated. An airport terminal was chosen as that
+site and nothing in the filter is specific to airports, and a shopping mall or any other
+large single-floor facility would be modelled the same way from its floor plan. The filter never reads the simulator's internal values and it only sees the
 phone log and the result of a simulated site survey, exactly as a deployed system would.
 
-\subsection{Terminal and beacons}
+\subsection{Demonstration site and beacons}
 The terminal (\cref{fig:floorplan}) is \SI{250}{m} long and \SI{60}{m} deep, about
 \SI{15000}{m^2}. A row of 11 rooms (shops, lounges, offices) with \SI{3}{m} ceilings
 lines the south side; the main concourse with two rows of concrete pillars runs through
@@ -156,16 +169,11 @@ is received (probability 0.85). A phone typically hears 36--60 tags per scan, fe
 \subsection{Walks, crowds and steps}
 Each test walk lasts \SI{600}{s}. The person walks along shortest paths between random
 rooms, gates and concourse points at about \SI{1.3}{m/s} and pauses for 5--\SI{40}{s} at
-half of them. The crowd consists of 0, 300, 800 or 2000 other people walking the same way
+half of them. The crowd consists of 0, 300, 800 or 2000 and other people walking the same way
 (none, low, medium, high). The phone's step detector reports each step's length (true
 stride about \SI{0.7}{m} with \SI{0.1}{m} noise) and heading change (\ang{1} noise plus a
 gyro drift of about \SI{0.002}{rad/s}); 2\% of steps are missed.
 
-\subsection{Site survey}
-Before deployment an installer walks the empty terminal and records readings on a
-regular grid. The survey is simulated on a \SI{3}{m} grid (1660 points), averaging 8
-readings of every tag at each point. All three measurement models are built only from
-this survey and the floor plan.
 
 %=====================================================================================
 \section{Methodology}
@@ -205,35 +213,85 @@ particle-filter equivalent of a likelihood $p(\text{map}\mid\mathbf{x}_{t-1},\ma
 that is 1 for feasible moves and 0 otherwise.
 
 \subsection{Measurement models}
+
 \label{sec:models}
 Each scan gives RSSI readings $z_i$ for the tags that were heard. The measurement model
 is $z_i = h_i(\mathbf{p}) + v_i$, where $\mathbf{p}=(x,y)$ and $h_i$ is the expected RSSI
-of tag $i$ at that position. Three choices of $h_i$ are compared; all three are fitted to
-or built from the same site survey.
+of tag $i$ at that position. In words, $h_i$ answers one question for every particle:
+\emph{if the phone really were here, what would it hear from tag $i$?} The filter then
+compares that prediction with what the phone actually heard. Particles whose predictions
+match the scan gain weight; particles whose predictions disagree lose it.
+
+How well this works depends on how good the prediction is. Three choices of $h_i$ are
+compared, each knowing more about the building than the last. Model~1 knows only the
+distance to each tag. Model~2 also knows where the walls are. Model~3 knows what was
+actually measured at each place. All three are fitted to or built from the same site
+survey, so the comparison isolates the effect of the model itself. More knowledge gives
+sharper predictions, but it also costs more to set up and maintain.
 
 \paragraph{Model 1: plain log-distance path loss.}
-\begin{equation}
+\begin{equation}[H]
   h_i(\mathbf{p}) = A - 10\,n\,\log_{10} d_i(\mathbf{p}),
   \qquad d_i = \sqrt{(x-x_i)^2+(y-y_i)^2+(z_i-1.2)^2},
   \label{eq:plain}
-\end{equation}
-with $d_i \ge \SI{0.5}{m}$. A least-squares fit to the survey gives
-$A=\SI{-61.7}{dBm}$ and $n=1.31$. The exponent is well below the free-space value of 2
-because reflections in the hall keep distant signals strong.
+\end{equation} .
+
+A radio signal spreads out as it travels, so the power arriving at the phone
+falls the further away the tag is. Because the power spreads over an ever larger area,
+it falls with the \emph{logarithm} of distance, so every doubling of distance costs the same
+number of decibels. The model has only two numbers for the whole building. $A$ is the
+RSSI expected \SI{1}{m} from a tag. $n$ is the path-loss exponent and says how fast the signal fades. In free space $n=2$, so each doubling of distance costs \SI{6}{dB}. The distance $d_i$ is measured in 3-D,
+from the phone held at \SI{1.2}{m} to the tag on the ceiling.
+
+A least-squares fit to the survey gives $A=\SI{-61.7}{dBm}$ and $n=1.31$, so here each
+doubling of distance costs only $10 \times 1.31 \times \log_{10}2 \approx \SI{3.9}{dB}$.
+The exponent is well below 2 because the hall acts partly like a waveguide.
+Reflections from the floor, roof and walls keep distant signals stronger than in open
+space.
+
+The logarithm has an important consequence for localisation. The change in RSSI per
+metre of movement is $10n/(d \ln 10) \approx 5.7/d$~dB/m. A tag \SI{2}{m} away changes by
+about \SI{2.8}{dB} for every metre the phone moves, but a tag \SI{20}{m} away changes by
+only \SI{0.3}{dB}, far below the \SI{6}{dB} measurement noise. Nearby tags therefore
+carry almost all the position information, which is why the filter uses the strongest
+tags in each scan (\cref{sec:likelihood}).
+
+The model treats the building as empty and lines of equal expected RSSI are circles around
+each tag, whatever lies in between. This makes it cheap (two numbers for the whole
+building), but it is wrong wherever walls block the signal. A tag behind a wall reads
+weaker than the model expects, so the model believes it is further away, and the
+particles are pulled in the wrong direction.
 
 \paragraph{Model 2: multi-wall (Motley--Keenan).}
 \begin{equation}
   h_i(\mathbf{p}) = A - 10\,n\,\log_{10} d_i(\mathbf{p}) - \sum_{t} N_{i,t}(\mathbf{p})\,L_t,
   \label{eq:multiwall}
 \end{equation}
-where $N_{i,t}(\mathbf{p})$ is the number of walls of type
+
+In this equation $N_{i,t}(\mathbf{p})$ is the number of walls of type
 $t\in\{\text{concrete},\text{drywall},\text{glass},\text{ceiling}\}$ crossed by the
 straight line from the phone to the tag, found by intersecting that 3-D line with every
-wall segment of the floor plan, and $L_t$ is the loss per wall. A non-negative
-least-squares fit gives $A=\SI{-60.5}{dBm}$, $n=1.27$, $L_\text{drywall}=\SI{1.5}{dB}$,
-$L_\text{glass}=\SI{1.7}{dB}$ and $L_\text{ceiling}=\SI{4.4}{dB}$ (no surveyed reading
-crossed a concrete wall, so its loss is undetermined). To avoid tracing lines at run
-time, $\sum_t N_{i,t}L_t$ is computed in advance for every tag on a \SI{1}{m} grid.
+wall segment of the floor plan, and $L_t$ is the loss per wall.
+
+This keeps Model~1 and fixes its main error. Every wall between the phone and
+the tag absorbs part of the signal, so the model subtracts a fixed toll for each wall
+the direct line crosses, with a different toll for each material. The floor plan is
+already known to the filter, so this extra knowledge costs nothing to collect. The equal-RSSI lines are no longer circles and they step down
+wherever they cross a wall. The ceiling term covers the hall tags at \SI{10}{m}, which a
+phone inside a room hears through the room's \SI{3}{m} ceiling.
+
+The practical gain is at room boundaries. A tag inside a shop reads a few decibels
+weaker from the concourse than from inside the shop, even at the same distance. The
+plain model cannot see this difference, but the multi-wall model can, so it can better
+tell whether the person has walked into the shop or is just passing its front.
+
+A non-negative least-squares fit gives $A=\SI{-60.5}{dBm}$, $n=1.27$,
+$L_\text{drywall}=\SI{1.5}{dB}$, $L_\text{glass}=\SI{1.7}{dB}$ and
+$L_\text{ceiling}=\SI{4.4}{dB}$ (no surveyed reading crossed a concrete wall, so its
+loss is undetermined). The wall losses are small at \SI{2.4}{GHz}, and signals also
+reach the phone by reflection around the walls, which the model still ignores; so the
+improvement over Model~1 is real but modest. To avoid tracing lines at run time,
+$\sum_t N_{i,t}L_t$ is computed in advance for every tag on a \SI{1}{m} grid.
 
 \paragraph{Model 3: fingerprint map.}
 \begin{equation}
@@ -242,14 +300,50 @@ time, $\sum_t N_{i,t}L_t$ is computed in advance for every tag on a \SI{1}{m} gr
 \end{equation}
 where $M_i$ is the surveyed mean RSSI of tag $i$ on a regular grid of spacing $\Delta$,
 read between grid points by bilinear interpolation. Readings below the sensitivity are
-stored as \SI{-95}{dBm}. With $\Delta=\SI{3}{m}$, a particle at fractional grid offsets
+stored as \SI{-95}{dBm}.
+
+Instead of predicting the signal from physics, measure it. Before
+deployment an installer walks the empty building and records the average RSSI of every
+tag at each point of a grid. Each place then has its own pattern of strengths, for
+example ``tag 12 strong, tag 40 medium, tag 7 weak'', much as a fingerprint identifies a
+person. The map contains everything the formulas leave out like reflections, the
+waveguide effect of the hall, shadows of pillars and the real losses of every wall. The
+filter no longer needs an equation for the signal and for each particle it simply looks up
+what the survey measured there.
+
+A particle rarely sits exactly on a survey point, so the value is blended from the four
+surrounding points, each weighted by how close the particle is to it (bilinear
+interpolation). With $\Delta=\SI{3}{m}$, a particle at fractional grid offsets
 $(u,v)\in[0,1)^2$ inside a cell with corner values $M_{00},M_{10},M_{01},M_{11}$ gets
 \begin{equation}
   M_i(\mathbf{p}) = (1-u)(1-v)M_{00} + u(1-v)M_{10} + (1-u)v\,M_{01} + uv\,M_{11}.
 \end{equation}
-The spacing sets the survey effort: \SI{3}{m} needs 1660 points, \SI{6}{m} needs 420 and
-\SI{12}{m} needs 105. The \SI{6}{m} and \SI{12}{m} maps keep every second or fourth point
-of the \SI{3}{m} survey.
+A particle exactly on a survey point gets that point's value, and one in the middle of a
+cell gets the average of the four corners. The predicted field is therefore smooth and
+continuous, which keeps nearby particles' weights similar.
+
+The cost is effort and upkeep. The spacing sets the survey work: \SI{3}{m} needs 1660
+points, \SI{6}{m} needs 420 and \SI{12}{m} needs 105. The \SI{6}{m} and \SI{12}{m} maps
+keep every second or fourth point of the \SI{3}{m} survey. A coarser grid is cheaper but
+blurs the map, because the interpolation has to bridge larger gaps, sometimes across a
+wall. The map also describes the building on the day of the survey; if shops are refitted
+or a beacon is moved, it goes out of date (\cref{sec:discussion}). \Cref{tab:models} summarises the three models.
+
+\begin{table}[htbp]
+  \centering
+  \caption{What each measurement model knows, and what it costs.}
+  \label{tab:models}
+  \small
+  \begin{tabular}{@{}p{0.2\linewidth}p{0.22\linewidth}p{0.25\linewidth}p{0.25\linewidth}@{}}
+    \toprule
+    Model & Knows about & Parameters & Set-up cost \\
+    \midrule
+    1. Plain path loss & distance only & $A$, $n$ & small survey to fit 2 numbers \\
+    2. Multi-wall & distance and walls & $A$, $n$, one loss per wall type & floor plan and a small survey \\
+    3. Fingerprint & measured signal at each place & one map value per tag and grid point & full grid survey, kept up to date \\
+    \bottomrule
+  \end{tabular}
+\end{table}
 
 \subsection{Likelihood and the phone offset}
 \label{sec:likelihood}
@@ -295,11 +389,9 @@ are then moved by a small random jitter ($\sigma=\SI{0.15}{m}$, roughening) so t
 do not collapse onto one point, and 1\% of particles are re-drawn near the three
 strongest tags of the current scan ($\sigma=\SI{6}{m}$). These injected particles let the
 filter recover if it ever locks onto the wrong place. The reported position is the
-weighted mean of the particles, and the heading is the weighted circular mean.
+weighted mean of the particles, and the heading is the weighted circular mean. \Cref{alg:pf} summarises one cycle.
 
-\Cref{alg:pf} summarises one cycle.
-
-\begin{algorithm}[t]
+\begin{algorithm}[H]
   \caption{One cycle of the BLE particle filter (one scan per second)}
   \label{alg:pf}
   \KwIn{particles $\{\mathbf{x}^{(k)}, w^{(k)}\}_{k=1}^N$, steps since the last scan, scan $\mathbf{z}$}
@@ -326,7 +418,7 @@ weighted mean of the particles, and the heading is the weighted circular mean.
 
 The filter is written in Python with NumPy, vectorised over particles, so one cycle is a
 handful of array operations rather than a loop over 3000 particles. The code is split so
-that the three filters share everything except the measurement model:
+that the three filters share everything except the measurement model.
 
 \begin{center}
 \small
@@ -626,7 +718,7 @@ is the mean of the 10 per-walk median errors, together with the worst walk.
         the correction the filter explains this by moving the person away from the
         tags. Both $\beta=0.5$ and $\beta=1$ prevent this.
 \end{itemize}
-These sweeps use the same walks as \cref{tab:main}; the defaults were fixed before these
+These sweeps use the same walks as \cref{tab:main}, so the defaults were fixed before these
 walks were run, and they were not re-tuned on them.
 
 %=====================================================================================
@@ -634,7 +726,7 @@ walks were run, and they were not re-tuned on them.
 \label{sec:discussion}
 %=====================================================================================
 
-\paragraph{Why a particle filter fits this problem.} Three parts of the design could
+\paragraph{Why a particle filter fits this problem -} Three parts of the design could
 not be expressed in a Kalman filter. The map constraint removes particles that walk
 through walls, which keeps the estimate inside corridors and rooms. The fingerprint
 measurement model is a lookup table with no derivative. And at start-up, or after a
@@ -642,7 +734,7 @@ wrong turn, the cloud holds several hypotheses at once (\cref{fig:particles}). T
 per-particle gyro bias and stride scale are a cheap way to estimate slowly varying
 sensor errors: they need no extra equations, only resampling.
 
-\paragraph{What limits accuracy.} The formula models are limited by model error, not
+\paragraph{What limits accuracy -} The formula models are limited by model error, not
 noise: a single path-loss exponent cannot describe both nearby tags and the reflections
 that keep distant tags strong. In the survey data, tags within \SI{5}{m} read about
 \SI{4}{dB} stronger than the fitted plain model predicts, while far tags match it, so the
@@ -650,7 +742,7 @@ filter is systematically pulled away from nearby tags. The fingerprint map remov
 bias, which is why it wins by a large margin. Its own limit is the survey spacing and the
 interpolation between survey points.
 
-\paragraph{Problems found and how they were addressed.} Several design choices came from
+\paragraph{Problems found and how they were addressed -} Several design choices came from
 failures seen during development:
 \begin{itemize}
   \item An early model subtracted a fixed loss for every tag in a different zone (room
@@ -658,13 +750,13 @@ failures seen during development:
         rooms, because the fixed loss was larger than the real loss through glass fronts.
         Replacing it with wall counts (Model 2), and then with a map (Model 3), removed
         the drift.
-  \item Using every heard tag instead of the strongest 10 made the error much worse:
+  \item Using every heard tag instead of the strongest 10 made the error much worse because
         weak readings are biased high because only lucky ones pass the sensitivity limit.
   \item Without offset removal, a phone that read about \SI{6}{dB} low in a crowd made
         the filter lose the person completely on one walk during development
         (median error \SI{34}{m}). The shrinkage estimate of \cref{eq:offset} fixed this,
         and the parameter study above confirms it.
-  \item A heavy-tailed Student-$t$ likelihood was compared with the Gaussian on 40 walks;
+  \item A heavy-tailed Student-$t$ likelihood was compared with the Gaussian on 40 walks and
         the two were tied for the fingerprint maps and the Gaussian was slightly better
         for the formula models, so the simpler Gaussian was kept.
   \item Choosing the strongest tags after adding back each particle's modelled wall
@@ -672,7 +764,7 @@ failures seen during development:
         in ten and gave no measurable gain.
 \end{itemize}
 
-\paragraph{Map staleness.} A fingerprint map describes the building on the day of the
+\paragraph{Map staleness -} A fingerprint map describes the building on the day of the
 survey. To test what happens when the building changes, the \SI{6}{m} map was perturbed
 by a smooth random error per tag plus a constant error per tag, while the phone readings
 stayed the same (\cref{tab:stale}).
@@ -702,10 +794,12 @@ therefore needs the map to be checked after changes to the building, or updated
 automatically; the error sizes used here are assumptions, and real drift can only be
 measured in a pilot.
 
-\paragraph{Limitations.} All data is simulated. The ray tracer has no furniture, shop
+\paragraph{Limitations -} All data is simulated. The ray tracer has no furniture, shop
 fittings or people, and the same simulated building produced both the survey and the
 test walks, so the fingerprint map here is close to perfect; real accuracy will be lower
-and must be measured in a pilot. Only one floor and one person are tracked, the phone is
+and must be measured in a pilot. Only one demonstration building was simulated, so other layouts (for example a
+multi-storey mall with an atrium) remain to be tested. Only one floor and one person are
+tracked, the phone is
 always held at \SI{1.2}{m}, and the step detector is simulated rather than real.
 
 %=====================================================================================
@@ -713,9 +807,10 @@ always held at \SI{1.2}{m}, and the step detector is simulated rather than real.
 \label{sec:conclusion}
 %=====================================================================================
 
-A particle filter was implemented to track a pedestrian in a \SI{15000}{m^2} airport
-terminal from BLE signal strength and phone step detection, with the floor plan as a
-hard constraint. Using the same filter with three measurement models showed that the
+A particle filter was implemented for indoor localisation in large facilities such as
+airports and shopping malls. It tracks a pedestrian by fusing BLE signal strength with
+smartphone IMU step detection, with the floor plan as a hard constraint, and was
+demonstrated in a simulated \SI{15000}{m^2} airport terminal. Using the same filter with three measurement models showed that the
 model of the radio signal is decisive: a fingerprint map from a site survey reduced the
 median error from \SI{3.1}{m} (multi-wall) to \SI{1.7}{m} at \SI{6}{m} survey spacing and
 \SI{1.3}{m} at \SI{3}{m}, with 90\% of errors below \SI{2.8}{m} for the denser map.
@@ -724,7 +819,7 @@ on one CPU core, and is 5--6 times more accurate than using BLE or steps alone.
 Removing a shrunken estimate of the shared reading offset was essential for robustness
 in crowds.
 
-Future work: test on real phones in a real building; use a wall-aware interpolation of
+\paragraph{Future work -} Test on real phones in a real airport or shopping mall; use a wall-aware interpolation of
 the map so that survey points on the other side of a wall are not blended in; adapt
 $\sigma$ to the crowd level; and update the map over time from the filter's own
 confident estimates to counter map staleness.
