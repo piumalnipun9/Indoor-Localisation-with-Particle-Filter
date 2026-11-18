@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from indoor_loc import floorplan as fp  # noqa: E402
-from indoor_loc import particle_filter as pf  # noqa: E402
+from indoor_loc import filters  # noqa: E402
 
 SETTLE_S = 30.0
 CLOUD = 300
@@ -51,14 +51,15 @@ def score(log, result):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("log", type=Path)
-    parser.add_argument("--variant", default="full", choices=sorted(pf.VARIANTS))
+    parser.add_argument("--filter", default="fingerprint_6m", choices=sorted(filters.METHODS))
+    parser.add_argument("--seed", type=int, default=0)
     args = parser.parse_args()
 
     log = dict(np.load(args.log))
     survey = dict(np.load(ROOT / "data" / "survey.npz"))
-    result = pf.run(log, survey, pf.VARIANTS[args.variant], cloud_size=CLOUD)
-    print(args.log.stem, args.variant, {k: round(v, 2) for k, v in score(log, result).items()})
-    out = args.log.with_name(f"{args.log.stem}__{args.variant}_estimate.npz")
+    result = filters.run(log, filters.make(args.filter, survey, args.seed), cloud_size=CLOUD)
+    print(args.log.stem, args.filter, {k: round(v, 2) for k, v in score(log, result).items()})
+    out = args.log.with_name(f"{args.log.stem}__{args.filter}_estimate.npz")
     np.savez_compressed(out, **result)
     print(f"Wrote {out}")
 

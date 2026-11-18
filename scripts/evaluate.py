@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "scripts"))
 
-from indoor_loc import particle_filter as pf  # noqa: E402
+from indoor_loc import filters  # noqa: E402
 from run_filter import SETTLE_S, score, truth_at  # noqa: E402
 
 BOOTSTRAP_DRAWS = 10000
@@ -59,7 +59,7 @@ def evaluate(job):
     elif method == "pdr_only":
         result = pdr_only(log)
     else:
-        result = pf.run(log, survey, pf.VARIANTS[method], seed=seed)
+        result = filters.run(log, filters.make(method, survey, seed))
     metrics = score(log, result)
     keep = result["time"] >= SETTLE_S
     errors = np.hypot(*(result["position"][keep] - truth_at(log, result["time"][keep])[0]).T)
@@ -89,8 +89,8 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--seeds", type=int, nargs="+", required=True)
     parser.add_argument("--crowds", nargs="+", default=["none"])
-    parser.add_argument("--methods", nargs="+", default=["full"])
-    parser.add_argument("--baseline", default="full")
+    parser.add_argument("--methods", nargs="+", default=["fingerprint_6m"])
+    parser.add_argument("--baseline", default="fingerprint_6m")
     parser.add_argument("--workers", type=int, default=4)
     parser.add_argument("--name", default="results")
     parser.add_argument("--out-dir", type=Path, default=ROOT / "outputs")

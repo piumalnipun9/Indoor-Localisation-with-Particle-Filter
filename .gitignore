@@ -15,3 +15,9 @@ data/radio_maps/
 # Generated simulation logs
 data/sim/
 data/survey.npz
+
+# LaTeX build files
+report/*.aux
+report/*.log
+report/*.out
+report/*.toc
